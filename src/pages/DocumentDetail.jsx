@@ -12,6 +12,7 @@ export default function DocumentDetail() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-2">Документ № {document.id}</h1>
       <h1 className="text-2xl font-bold mb-2">{document.title}</h1>
       <p className="text-gray-600 mb-4">{document.description}</p>
       <p className="text-sm text-gray-400 mb-8">Источник: {document.source}</p>

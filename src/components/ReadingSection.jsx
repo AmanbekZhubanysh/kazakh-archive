@@ -51,7 +51,7 @@ export default function ReadingSection({ reading }) {
           rounded 
           bg-gray-50 
           space-y-3
-          max-h-[400px]
+          max-h-[600px]
           overflow-y-auto
         "
       >
