@@ -66,11 +66,35 @@
 // }
 
 // src/components/ReadingSection.jsx
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 
 export default function ReadingSection({ reading }) {
-  const isMarkdown = typeof reading === "string";
-  const isArray = Array.isArray(reading);
+  const [content, setContent] = useState("");
+
+  useEffect(() => {
+    // 1) Если массив — старое поведение
+    if (Array.isArray(reading)) {
+      setContent(reading.flat().join("\n"));
+      return;
+    }
+
+    // 2) Если путь к .md файлу
+    if (typeof reading === "string" && reading.endsWith(".md")) {
+      fetch(reading)
+        .then(res => res.text())
+        .then(setContent)
+        .catch(() =>
+          setContent("⚠️ Не удалось загрузить документ")
+        );
+      return;
+    }
+
+    // 3) Если просто markdown-строка
+    if (typeof reading === "string") {
+      setContent(reading);
+    }
+  }, [reading]);
 
   return (
     <section className="mb-8">
@@ -88,30 +112,11 @@ export default function ReadingSection({ reading }) {
           overflow-y-auto
         "
       >
-        {/* Markdown mode */}
-        {isMarkdown && (
-          <div className="prose prose-gray max-w-none">
-            <ReactMarkdown>
-              {reading}
-            </ReactMarkdown>
-          </div>
-        )}
-
-        {/* Array mode (как раньше) */}
-        {isArray &&
-          reading.flat().map((para, i) => (
-            <p key={i} className="mb-3 leading-relaxed">
-              {para}
-            </p>
-          ))
-        }
-
-        {/* Fallback */}
-        {!isMarkdown && !isArray && (
-          <p className="text-red-500">
-            Unsupported reading format
-          </p>
-        )}
+        <div className="prose prose-gray max-w-none">
+          <ReactMarkdown>
+            {content}
+          </ReactMarkdown>
+        </div>
       </div>
     </section>
   );
