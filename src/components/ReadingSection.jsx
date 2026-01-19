@@ -68,6 +68,7 @@
 // src/components/ReadingSection.jsx
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 
 export default function ReadingSection({ reading }) {
   const [content, setContent] = useState("");
@@ -113,7 +114,8 @@ export default function ReadingSection({ reading }) {
         "
       >
         <div className="prose prose-gray max-w-none">
-          <ReactMarkdown>
+          {/* Используем ReactMarkdown с поддержкой HTML */}
+          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
             {content}
           </ReactMarkdown>
         </div>
@@ -121,4 +123,3 @@ export default function ReadingSection({ reading }) {
     </section>
   );
 }
-
