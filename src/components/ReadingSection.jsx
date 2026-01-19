@@ -65,35 +65,29 @@
 //   );
 // }
 
-// src/components/ReadingSection.jsx
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm"; // ✅ добавляем поддержку таблиц, чекбоксов, strikethrough
 
 export default function ReadingSection({ reading }) {
   const [content, setContent] = useState("");
 
   useEffect(() => {
-    // Если строка с .md → загрузка файла
     if (typeof reading === "string" && reading.endsWith(".md")) {
       fetch(reading)
         .then(res => res.text())
         .then(setContent)
-        .catch(() =>
-          setContent("⚠️ Не удалось загрузить документ")
-        );
+        .catch(() => setContent("⚠️ Не удалось загрузить документ"));
       return;
     }
 
-    // Если просто строка Markdown
     if (typeof reading === "string") {
       setContent(reading);
       return;
     }
 
-    // Если массив — старое поведение
     if (Array.isArray(reading)) {
-      // объединяем все страницы в один массив абзацев
       setContent(reading.flat());
     }
   }, [reading]);
@@ -106,26 +100,27 @@ export default function ReadingSection({ reading }) {
 
       <div
         className="
-          border 
-          p-4 
-          rounded 
-          bg-gray-50 
+          border
+          p-4
+          rounded
+          bg-gray-50
           space-y-3
           max-h-[600px]
           overflow-y-auto
         "
       >
         {Array.isArray(content) ? (
-          // Старый стиль для массива
           content.map((para, i) => (
             <p key={i} className="leading-relaxed">
               {para}
             </p>
           ))
         ) : (
-          // Markdown для строки / файла
           <div className="prose prose-gray max-w-none">
-            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+            <ReactMarkdown
+              rehypePlugins={[rehypeRaw]}
+              remarkPlugins={[remarkGfm]} // ✅ добавлено
+            >
               {content}
             </ReactMarkdown>
           </div>
