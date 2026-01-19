@@ -65,15 +65,23 @@
 //   );
 // }
 
+// src/components/ReadingSection.jsx
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm"; // ✅ добавляем поддержку таблиц, чекбоксов, strikethrough
+import remarkGfm from "remark-gfm";
 
 export default function ReadingSection({ reading }) {
   const [content, setContent] = useState("");
 
   useEffect(() => {
+    // Если массив — старое поведение
+    if (Array.isArray(reading)) {
+      setContent(reading.flat());
+      return;
+    }
+
+    // Если путь к .md файлу
     if (typeof reading === "string" && reading.endsWith(".md")) {
       fetch(reading)
         .then(res => res.text())
@@ -82,15 +90,27 @@ export default function ReadingSection({ reading }) {
       return;
     }
 
+    // Markdown строка
     if (typeof reading === "string") {
       setContent(reading);
-      return;
-    }
-
-    if (Array.isArray(reading)) {
-      setContent(reading.flat());
     }
   }, [reading]);
+
+  // Кастомные компоненты для Markdown
+  const markdownComponents = {
+    table: ({node, ...props}) => (
+      <table className="table-auto w-full border border-gray-400 text-sm mb-4" {...props} />
+    ),
+    th: ({node, ...props}) => (
+      <th className="border px-2 py-1 bg-gray-100 font-semibold text-left" {...props} />
+    ),
+    td: ({node, ...props}) => (
+      <td className="border px-2 py-1 text-left align-top" {...props} />
+    ),
+    p: ({node, ...props}) => (
+      <p className="mb-2 leading-relaxed" {...props} />
+    )
+  };
 
   return (
     <section className="mb-8">
@@ -98,43 +118,23 @@ export default function ReadingSection({ reading }) {
         Чтение
       </h2>
 
-      <div
-        className="
-          border
-          p-4
-          rounded
-          bg-gray-50
-          space-y-3
-          max-h-[600px]
-          overflow-y-auto
-        "
-      >
+      <div className="border p-4 rounded bg-gray-50 max-h-[600px] overflow-y-auto">
         {Array.isArray(content) ? (
           content.map((para, i) => (
-            <p key={i} className="leading-relaxed">
+            <p key={i} className="mb-2 leading-relaxed">
               {para}
             </p>
           ))
         ) : (
-          <div className="prose prose-gray max-w-none">
-  <ReactMarkdown
-    rehypePlugins={[rehypeRaw]}
-    remarkPlugins={[remark-gfm]}
-    components={{
-      table: ({node, ...props}) => (
-        <table className="table-auto border border-gray-300 w-full" {...props} />
-      ),
-      th: ({node, ...props}) => (
-        <th className="border border-gray-300 p-2 bg-gray-100 font-semibold text-left" {...props} />
-      ),
-      td: ({node, ...props}) => (
-        <td className="border border-gray-300 p-2 align-top text-left" {...props} />
-      )
-    }}
-  >
-    {content}
-  </ReactMarkdown>
-</div>
+          <div>
+            <ReactMarkdown
+              rehypePlugins={[rehypeRaw]}
+              remarkPlugins={[remarkGfm]}
+              components={markdownComponents}
+            >
+              {content}
+            </ReactMarkdown>
+          </div>
         )}
       </div>
     </section>
