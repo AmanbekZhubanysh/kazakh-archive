@@ -74,13 +74,7 @@ export default function ReadingSection({ reading }) {
   const [content, setContent] = useState("");
 
   useEffect(() => {
-    // 1) Если массив — старое поведение
-    if (Array.isArray(reading)) {
-      setContent(reading.flat().join("\n"));
-      return;
-    }
-
-    // 2) Если путь к .md файлу
+    // Если строка с .md → загрузка файла
     if (typeof reading === "string" && reading.endsWith(".md")) {
       fetch(reading)
         .then(res => res.text())
@@ -91,9 +85,16 @@ export default function ReadingSection({ reading }) {
       return;
     }
 
-    // 3) Если просто markdown-строка
+    // Если просто строка Markdown
     if (typeof reading === "string") {
       setContent(reading);
+      return;
+    }
+
+    // Если массив — старое поведение
+    if (Array.isArray(reading)) {
+      // объединяем все страницы в один массив абзацев
+      setContent(reading.flat());
     }
   }, [reading]);
 
@@ -105,20 +106,30 @@ export default function ReadingSection({ reading }) {
 
       <div
         className="
-          border
-          p-6
-          rounded
-          bg-gray-50
-          max-h-[500px]
+          border 
+          p-4 
+          rounded 
+          bg-gray-50 
+          space-y-3
+          max-h-[600px]
           overflow-y-auto
         "
       >
-        <div className="prose prose-gray max-w-none">
-          {/* Используем ReactMarkdown с поддержкой HTML */}
-          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-            {content}
-          </ReactMarkdown>
-        </div>
+        {Array.isArray(content) ? (
+          // Старый стиль для массива
+          content.map((para, i) => (
+            <p key={i} className="leading-relaxed">
+              {para}
+            </p>
+          ))
+        ) : (
+          // Markdown для строки / файла
+          <div className="prose prose-gray max-w-none">
+            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+              {content}
+            </ReactMarkdown>
+          </div>
+        )}
       </div>
     </section>
   );
