@@ -117,13 +117,24 @@ export default function ReadingSection({ reading }) {
           ))
         ) : (
           <div className="prose prose-gray max-w-none">
-            <ReactMarkdown
-              rehypePlugins={[rehypeRaw]}
-              remarkPlugins={[remarkGfm]} // ✅ добавлено
-            >
-              {content}
-            </ReactMarkdown>
-          </div>
+  <ReactMarkdown
+    rehypePlugins={[rehypeRaw]}
+    remarkPlugins={[remark-gfm]}
+    components={{
+      table: ({node, ...props}) => (
+        <table className="table-auto border border-gray-300 w-full" {...props} />
+      ),
+      th: ({node, ...props}) => (
+        <th className="border border-gray-300 p-2 bg-gray-100 font-semibold text-left" {...props} />
+      ),
+      td: ({node, ...props}) => (
+        <td className="border border-gray-300 p-2 align-top text-left" {...props} />
+      )
+    }}
+  >
+    {content}
+  </ReactMarkdown>
+</div>
         )}
       </div>
     </section>
